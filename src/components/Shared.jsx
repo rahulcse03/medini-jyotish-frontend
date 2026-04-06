@@ -1,6 +1,5 @@
 import { SEVERITY_STYLES } from '../data/constants';
 
-/* ── Decorative Divider ✦ ॐ ✦ ────────────────────── */
 export function Divider() {
   return (
     <div style={{
@@ -12,7 +11,6 @@ export function Divider() {
   );
 }
 
-/* ── Section Header ──────────────────────────────────── */
 export function SectionHeader({ sa, en, sub }) {
   return (
     <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -34,7 +32,6 @@ export function SectionHeader({ sa, en, sub }) {
   );
 }
 
-/* ── Severity Badge ──────────────────────────────────── */
 export function SeverityBadge({ severity, sa }) {
   const c = SEVERITY_STYLES[severity] || SEVERITY_STYLES.savdhan;
   return (
@@ -53,11 +50,11 @@ export function SeverityBadge({ severity, sa }) {
   );
 }
 
-/* ── Navigation ──────────────────────────────────────── */
 const NAV_TABS = [
   { key: 'graha',    sa: 'ग्रह गोचर',  en: 'Graha' },
   { key: 'panchang', sa: 'पञ्चाङ्ग',   en: 'Panchang' },
   { key: 'medini',   sa: 'मेदिनी फल',  en: 'Predictions' },
+  { key: 'eclipse',  sa: 'ग्रहण फल',   en: 'Eclipses' },
 ];
 
 export function Nav({ active, setActive }) {
@@ -74,7 +71,7 @@ export function Nav({ active, setActive }) {
           style={{
             background: active === t.key ? 'var(--burnt-sienna)' : 'transparent',
             color: active === t.key ? 'var(--parchment-light)' : 'var(--burnt-sienna)',
-            border: 'none', padding: '12px 28px', cursor: 'pointer',
+            border: 'none', padding: '12px 24px', cursor: 'pointer',
             fontFamily: 'var(--font-devanagari)', fontSize: 14,
             letterSpacing: 1, transition: 'all 0.3s ease',
             borderTop: active === t.key ? '2px solid var(--ochre)' : '2px solid transparent',
@@ -92,7 +89,6 @@ export function Nav({ active, setActive }) {
   );
 }
 
-/* ── Loading Skeleton ────────────────────────────────── */
 export function LoadingSkeleton() {
   return (
     <div style={{
