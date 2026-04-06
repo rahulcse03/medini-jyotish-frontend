@@ -23,3 +23,8 @@ export function getMediniPredictions(category = null) {
 export function getEclipseAnalysis(count = 6) {
   return fetchAPI(`/api/v1/eclipses/upcoming?count=${count}`);
 }
+
+export function getSamvatsaraPhala(year = null) {
+  const q = year ? `?year=${year}` : '';
+  return fetchAPI(`/api/v1/samvatsara/current${q}`);
+}
