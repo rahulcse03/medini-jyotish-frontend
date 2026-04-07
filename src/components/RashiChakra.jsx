@@ -1,4 +1,19 @@
-import { RASHI_ORDER, RASHI_SYMBOLS, GRAHA_INFO, findGrahaKey } from '../data/constants';
+import { RASHI_ORDER, RASHI_SYMBOLS, GRAHA_INFO } from '../data/constants';
+
+const RASHI_NAMES = {
+  Mesha: "Mesha (मेष) — Aries",
+  Vrishabha: "Vrishabha (वृषभ) — Taurus",
+  Mithuna: "Mithuna (मिथुन) — Gemini",
+  Karka: "Karka (कर्क) — Cancer",
+  Simha: "Simha (सिंह) — Leo",
+  Kanya: "Kanya (कन्या) — Virgo",
+  Tula: "Tula (तुला) — Libra",
+  Vrischika: "Vrischika (वृश्चिक) — Scorpio",
+  Dhanu: "Dhanu (धनु) — Sagittarius",
+  Makara: "Makara (मकर) — Capricorn",
+  Kumbha: "Kumbha (कुम्भ) — Aquarius",
+  Meena: "Meena (मीन) — Pisces",
+};
 
 export default function RashiChakra({ grahas }) {
   if (!grahas || Object.keys(grahas).length === 0) return null;
@@ -33,65 +48,71 @@ export default function RashiChakra({ grahas }) {
   });
 
   return (
-    <svg viewBox="0 0 440 440" style={{ width: '100%', maxWidth: 440, display: 'block', margin: '0 auto' }}>
+    <svg viewBox="0 0 440 440" style={{ width: '100%', maxWidth: 440, display: 'block', margin: '0 auto', cursor: 'default' }}>
       {/* Outer and inner rings */}
       <circle cx={cx} cy={cy} r={outer} fill="none" stroke="#5C4033" strokeWidth="2" />
       <circle cx={cx} cy={cy} r={inner} fill="none" stroke="#5C4033" strokeWidth="1.5" />
 
-      {houses.map(h => {
-        const info = GRAHA_INFO;
-        return (
-          <g key={h.rashi}>
-            {/* House sector */}
-            <path d={h.path}
-              fill={h.planets.length > 0 ? 'rgba(184,134,11,0.07)' : 'transparent'}
-              stroke="#5C4033" strokeWidth="0.5" />
+      {houses.map(h => (
+        <g key={h.rashi}>
+          {/* House sector */}
+          <path d={h.path}
+            fill={h.planets.length > 0 ? 'rgba(184,134,11,0.07)' : 'transparent'}
+            stroke="#5C4033" strokeWidth="0.5"
+            style={{ cursor: 'pointer' }}>
+            <title>{RASHI_NAMES[h.rashi]}{h.planets.length > 0 ? ` — ${h.planets.map(p => GRAHA_INFO[p.key]?.name_sa || p.key).join(', ')}` : ''}</title>
+          </path>
 
-            {/* Dividing line */}
-            <line
-              x1={cx + inner * Math.cos(h.startAngle)}
-              y1={cy + inner * Math.sin(h.startAngle)}
-              x2={cx + outer * Math.cos(h.startAngle)}
-              y2={cy + outer * Math.sin(h.startAngle)}
-              stroke="#5C4033" strokeWidth="1" />
+          {/* Dividing line */}
+          <line
+            x1={cx + inner * Math.cos(h.startAngle)}
+            y1={cy + inner * Math.sin(h.startAngle)}
+            x2={cx + outer * Math.cos(h.startAngle)}
+            y2={cy + outer * Math.sin(h.startAngle)}
+            stroke="#5C4033" strokeWidth="1" />
 
-            {/* Rashi symbol */}
-            <text x={h.labelPos.x} y={h.labelPos.y}
-              textAnchor="middle" dominantBaseline="central"
-              style={{ fontSize: 14, fill: '#5C4033', fontFamily: "'EB Garamond', serif" }}>
-              {RASHI_SYMBOLS[h.rashi]}
-            </text>
+          {/* Rashi symbol with tooltip */}
+          <text x={h.labelPos.x} y={h.labelPos.y}
+            textAnchor="middle" dominantBaseline="central"
+            style={{ fontSize: 14, fill: '#5C4033', fontFamily: "'EB Garamond', serif", cursor: 'help' }}>
+            <title>{RASHI_NAMES[h.rashi]}</title>
+            {RASHI_SYMBOLS[h.rashi]}
+          </text>
 
-            {/* Planets in sector */}
-            {h.planets.map((p, pi) => {
-              const spread = h.planets.length > 1
-                ? (pi - (h.planets.length - 1) / 2) * 9 : 0;
-              const angle = h.midAngle + spread * (Math.PI / 180);
-              const px = cx + h.planetR * Math.cos(angle);
-              const py = cy + h.planetR * Math.sin(angle);
-              const gi = GRAHA_INFO[p.key] || { sym: '?', color: '#5C4033' };
+          {/* Planets in sector with tooltips */}
+          {h.planets.map((p, pi) => {
+            const spread = h.planets.length > 1
+              ? (pi - (h.planets.length - 1) / 2) * 9 : 0;
+            const angle = h.midAngle + spread * (Math.PI / 180);
+            const px = cx + h.planetR * Math.cos(angle);
+            const py = cy + h.planetR * Math.sin(angle);
+            const gi = GRAHA_INFO[p.key] || { sym: '?', color: '#5C4033' };
 
-              return (
-                <g key={p.key}>
-                  <circle cx={px} cy={py} r="14" fill={gi.color} opacity="0.15" />
-                  <text x={px} y={py}
-                    textAnchor="middle" dominantBaseline="central"
-                    style={{
-                      fontSize: 13, fill: gi.color, fontWeight: 700,
-                      fontFamily: "'Noto Serif Devanagari', serif",
-                    }}>
-                    {gi.sym}
-                  </text>
-                  {p.is_retrograde && (
-                    <text x={px + 13} y={py - 10}
-                      style={{ fontSize: 8, fill: '#8B2500' }}>℞</text>
-                  )}
-                </g>
-              );
-            })}
-          </g>
-        );
-      })}
+            const tooltip = `${gi.name_sa} (${p.graha || p.key}) — ${p.rashi} ${p.degree?.toFixed(1)}° | ${p.nakshatra || ''} P${p.pada || ''}${p.dignity && p.dignity !== 'neutral' ? ` | ${p.dignity}` : ''}${p.is_retrograde ? ' | Vakri ℞' : ''}`;
+
+            return (
+              <g key={p.key} style={{ cursor: 'help' }}>
+                <circle cx={px} cy={py} r="14" fill={gi.color} opacity="0.15">
+                  <title>{tooltip}</title>
+                </circle>
+                <text x={px} y={py}
+                  textAnchor="middle" dominantBaseline="central"
+                  style={{
+                    fontSize: 13, fill: gi.color, fontWeight: 700,
+                    fontFamily: "'Noto Serif Devanagari', serif",
+                  }}>
+                  <title>{tooltip}</title>
+                  {gi.sym}
+                </text>
+                {p.is_retrograde && (
+                  <text x={px + 13} y={py - 10}
+                    style={{ fontSize: 8, fill: '#8B2500' }}>℞</text>
+                )}
+              </g>
+            );
+          })}
+        </g>
+      ))}
 
       {/* Center */}
       <circle cx={cx} cy={cy} r={inner - 1} fill="#F5E6C8" />
