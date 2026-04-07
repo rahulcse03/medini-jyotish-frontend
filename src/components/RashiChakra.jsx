@@ -17,8 +17,8 @@ const RASHI_NAMES = {
 
 /* Inline styles for hover — using CSS class injection */
 const HOVER_STYLES = `
-  .rashi-symbol:hover { transform: scale(1.3); filter: drop-shadow(0 0 4px rgba(184,134,11,0.5)); }
-  .rashi-symbol { transition: transform 0.2s ease, filter 0.2s ease; cursor: pointer; }
+  .rashi-symbol:hover { filter: drop-shadow(0 0 4px rgba(184,134,11,0.5)); }
+  .rashi-symbol { transition: filter 0.2s ease; cursor: pointer; }
   .graha-group:hover .graha-bg { opacity: 0.35 !important; }
   .graha-group:hover .graha-label { transform: scale(1.15); }
   .graha-group { cursor: pointer; }
