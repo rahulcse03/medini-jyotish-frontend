@@ -28,3 +28,11 @@ export function getSamvatsaraPhala(year = null) {
   const q = year ? `?year=${year}` : '';
   return fetchAPI(`/api/v1/samvatsara/current${q}`);
 }
+
+export function getNationsList() {
+  return fetchAPI('/api/v1/kundli/nations');
+}
+
+export function getNationKundli(key) {
+  return fetchAPI(`/api/v1/kundli/nation/${key}`);
+}

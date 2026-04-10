@@ -36,6 +36,7 @@ const NAV_TABS = [
   { key: 'eclipse',     sa: 'ग्रहण फल',     en: 'Eclipses' },
   { key: 'samvatsara',  sa: 'संवत्सर फल',   en: 'Annual' },
   { key: 'kundli',      sa: 'जन्म कुण्डली', en: 'Kundli' },
+  { key: 'nations',     sa: 'राष्ट्र कुण्डली', en: 'Nations' },
 ];
 
 export function Nav({ active, setActive }) {

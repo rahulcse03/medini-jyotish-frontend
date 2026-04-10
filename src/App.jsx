@@ -7,6 +7,7 @@ import MediniPage from './pages/MediniPage';
 import EclipsePage from './pages/EclipsePage';
 import SamvatsaraPage from './pages/SamvatsaraPage';
 import KundliPage from './pages/KundliPage';
+import NationPage from './pages/NationPage';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
@@ -76,6 +77,8 @@ export default function App() {
 
         {active === 'kundli' ? (
           <KundliPage />
+        ) : active === 'nations' ? (
+          <NationPage />
         ) : loading ? (
           <LoadingSkeleton />
         ) : (
