@@ -36,3 +36,7 @@ export function getNationsList() {
 export function getNationKundli(key) {
   return fetchAPI(`/api/v1/kundli/nation/${key}`);
 }
+
+export function getMonthlySummary(year, month) {
+  return fetchAPI(`/api/v1/medini/monthly/${year}/${month}`);
+}
