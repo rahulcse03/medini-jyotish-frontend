@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SectionHeader, LoadingSkeleton } from '../components/Shared';
 import { GRAHA_INFO, findGrahaKey, DIGNITY_COLORS } from '../data/constants';
 import { getNationsList, getNationKundli } from '../api';
@@ -23,6 +23,34 @@ function NationCard({ nation, onClick, selected }) {
         <div style={{ fontSize: 10, opacity: 0.6 }}>{nation.date} · {nation.place}</div>
       </div>
     </button>
+  );
+}
+
+/* Compact bar shown after a nation is selected — replaces the full grid */
+function SelectedNationBar({ nation, onChangeClick }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+      background: 'var(--burnt-sienna)', color: 'var(--parchment-light)', padding: '14px 20px', marginBottom: 20,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: 28 }}>{nation.flag}</span>
+        <div>
+          <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 17, fontWeight: 600 }}>{nation.name_sa}</div>
+          <div style={{ fontSize: 13, opacity: 0.85 }}>{nation.name} · {nation.date}</div>
+        </div>
+      </div>
+      <button onClick={onChangeClick} style={{
+        background: 'rgba(255,255,255,0.15)', color: 'var(--parchment-light)', border: '1px solid rgba(255,255,255,0.3)',
+        padding: '8px 18px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 13, letterSpacing: 1,
+        transition: 'background 0.2s',
+      }}
+        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+      >
+        ↻ Change Nation
+      </button>
+    </div>
   );
 }
 
@@ -100,6 +128,8 @@ export default function NationPage() {
   const [kundli, setKundli] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(false);
+  const [showGrid, setShowGrid] = useState(true);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     getNationsList().then(data => { setNations(data); setLoading(false); }).catch(() => setLoading(false));
@@ -107,29 +137,46 @@ export default function NationPage() {
 
   const selectNation = async (key) => {
     setSelected(key);
+    setShowGrid(false);
     setChartLoading(true);
     setKundli(null);
     try {
       const data = await getNationKundli(key);
       setKundli(data);
+      // scroll to chart after data loads
+      setTimeout(() => chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (e) { console.error(e); }
     setChartLoading(false);
   };
 
+  const handleChangeNation = () => {
+    setShowGrid(true);
+  };
+
   if (loading) return <LoadingSkeleton />;
+
+  const selectedNation = nations.find(n => n.key === selected);
 
   return (
     <div>
       <SectionHeader sa="राष्ट्र कुण्डली" en="Nation Horoscopes" sub="Vedic birth charts of nations based on their founding moments" />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8, marginBottom: 24 }}>
-        {nations.map(n => <NationCard key={n.key} nation={n} onClick={selectNation} selected={selected === n.key} />)}
-      </div>
+      {/* Show compact bar when a nation is selected and grid is hidden */}
+      {selected && !showGrid && selectedNation && (
+        <SelectedNationBar nation={selectedNation} onChangeClick={handleChangeNation} />
+      )}
+
+      {/* Show full grid when no nation selected OR user clicked "Change" */}
+      {showGrid && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8, marginBottom: 24 }}>
+          {nations.map(n => <NationCard key={n.key} nation={n} onClick={selectNation} selected={selected === n.key} />)}
+        </div>
+      )}
 
       {chartLoading && <LoadingSkeleton />}
 
       {kundli && !kundli.error && (
-        <div style={{ animation: 'fadeIn 0.5s ease' }}>
+        <div ref={chartRef} style={{ animation: 'fadeIn 0.5s ease' }}>
           {/* Nation info */}
           {kundli.nation && (
             <div style={{ ...cardStyle, fontSize: 13, color: 'var(--burnt-sienna)', lineHeight: 1.7 }}>
@@ -164,10 +211,84 @@ export default function NationPage() {
             </div>
           )}
 
+          {/* ── Current Analysis (layman-friendly) ── */}
+          {kundli.current_analysis && (
+            <>
+              <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
+                <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 22, color: 'var(--ink)' }}>वर्तमान विश्लेषण</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Current Analysis</div>
+                <div style={{ fontSize: 11, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>What the stars say about {kundli.nation?.name || 'this nation'} right now</div>
+              </div>
+
+              {/* Current Mahadasha */}
+              {kundli.current_analysis.current_dasha?.lord && (
+                <div style={{ ...cardStyle, borderLeft: '3px solid var(--ochre)' }}>
+                  <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 12, color: 'var(--ochre)', letterSpacing: 2, marginBottom: 6 }}>वर्तमान महादशा</div>
+                  <div style={{ fontFamily: 'var(--font-sanskrit)', fontSize: 24, color: 'var(--ink)', marginBottom: 4 }}>
+                    {kundli.current_analysis.current_dasha.lord_sa} महादशा
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--burnt-sienna)', marginBottom: 10 }}>
+                    {kundli.current_analysis.current_dasha.lord.charAt(0).toUpperCase() + kundli.current_analysis.current_dasha.lord.slice(1)} Mahadasha · {kundli.current_analysis.current_dasha.start} to {kundli.current_analysis.current_dasha.end}
+                  </div>
+                  <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 600, marginBottom: 6 }}>
+                    {kundli.current_analysis.current_dasha.theme}
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--burnt-sienna)', lineHeight: 1.7 }}>
+                    {kundli.current_analysis.current_dasha.effect}
+                  </div>
+                </div>
+              )}
+
+              {/* Transit readings */}
+              {kundli.current_analysis.transits?.length > 0 && (
+                <>
+                  <div style={{ textAlign: 'center', margin: '24px 0 14px' }}>
+                    <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)' }}>ग्रह गोचर</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Current Transits over {kundli.nation?.name || 'Nation'}'s Chart</div>
+                  </div>
+                  {kundli.current_analysis.transits.map((t, i) => {
+                    const toneColor = t.tone === 'positive' ? 'var(--sage)' : 'var(--blood)';
+                    const toneLabel = t.tone === 'positive' ? 'शुभ Favorable' : 'सावधान Challenging';
+                    return (
+                      <div key={i} style={cardStyle}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                          <div>
+                            <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 15, color: 'var(--ink)', fontWeight: 600 }}>{t.graha_sa}</span>
+                            <span style={{ fontSize: 13, color: 'var(--burnt-sienna)', marginLeft: 6 }}>{t.graha}{t.is_retrograde ? ' (वक्री Retrograde)' : ''}</span>
+                          </div>
+                          <span style={{ fontSize: 11, color: toneColor, border: `1px solid ${toneColor}`, padding: '2px 10px' }}>{toneLabel}</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--ochre)', marginBottom: 6 }}>
+                          Transiting {t.rashi_sa} {t.rashi} → House {t.transit_house} ({t.house_name_sa} · {t.house_name})
+                        </div>
+                        <div style={{ fontSize: 13, color: 'var(--burnt-sienna)', lineHeight: 1.7 }}>
+                          {t.graha} currently {t.reading}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Key themes */}
+              {kundli.current_analysis.key_themes?.length > 0 && (
+                <>
+                  <div style={{ textAlign: 'center', margin: '24px 0 14px' }}>
+                    <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)' }}>मूल विशेषताएँ</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Key Birth Chart Themes</div>
+                  </div>
+                  {kundli.current_analysis.key_themes.map((th, i) => (
+                    <div key={i} style={{ ...cardStyle, fontSize: 13, color: 'var(--ink)', lineHeight: 1.7 }}>{th}</div>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+
           {/* Graha positions */}
           <div style={{ textAlign: 'center', margin: '24px 0 16px' }}>
             <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>ग्रह स्थिति</div>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Planetary Positions</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Birth Chart Positions</div>
           </div>
           <GrahaTable grahas={kundli.grahas} />
 
