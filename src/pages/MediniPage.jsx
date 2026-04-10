@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SectionHeader, SeverityBadge } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 
 function PredictionCard({ pred, index }) {
   const [expanded, setExpanded] = useState(false);
@@ -76,21 +77,22 @@ function PredictionCard({ pred, index }) {
 }
 
 export default function MediniPage({ data }) {
+  const { t } = useLang();
   if (!data) return null;
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
       <SectionHeader
         sa="मेदिनी फल"
-        en="Mundane Predictions"
-        sub={`${data.total_active_rules} active prediction${data.total_active_rules !== 1 ? 's' : ''} based on current planetary transits`}
+        en={t('medini.title')}
+        sub={`${data.total_active_rules}${data.total_active_rules !== 1 ? t('medini.activePlural') : t('medini.activeSingular')}${t('medini.basedOn')}`}
       />
 
       {data.predictions?.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: 40, color: 'var(--burnt-sienna)', fontStyle: 'italic',
         }}>
-          No active predictions at this time.
+          {t('medini.none')}
         </div>
       ) : (
         data.predictions?.map((pred, i) => (
@@ -102,8 +104,8 @@ export default function MediniPage({ data }) {
         textAlign: 'center', marginTop: 24, fontSize: 11,
         color: 'var(--burnt-sienna)', fontStyle: 'italic', lineHeight: 1.8,
       }}>
-        Predictions sourced from Brihat Samhita by Varahamihira (6th Century CE)
-        <br />Tap any prediction to see details
+        {t('medini.source')}
+        <br />{t('medini.tapDetails')}
       </div>
     </div>
   );

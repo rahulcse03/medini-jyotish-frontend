@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SectionHeader, LoadingSkeleton } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 import { GRAHA_INFO, DIGNITY_COLORS } from '../data/constants';
 import { getMonthlySummary } from '../api';
 
@@ -26,7 +27,8 @@ function MonthNav({ year, month, onChange }) {
 
 function SignChangeCard({ c }) {
   const impColor = { high: 'var(--blood)', medium: 'var(--ochre)', low: 'var(--burnt-sienna)' }[c.importance] || 'var(--burnt-sienna)';
-  const impLabel = { high: 'Major', medium: 'Notable', low: 'Minor' }[c.importance] || '';
+  const { t } = useLang();
+  const impLabel = { high: t('monthly.major'), medium: t('monthly.notable'), low: t('monthly.minor') }[c.importance] || '';
   return (
     <div style={cardStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
@@ -71,6 +73,7 @@ function PredictionCard({ p }) {
 }
 
 export default function MonthlyPage() {
+  const { t } = useLang();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -93,7 +96,7 @@ export default function MonthlyPage() {
 
   return (
     <div>
-      <SectionHeader sa="मासिक सारांश" en="Monthly Vedic Forecast" sub="Planetary transits, sign changes, and classical predictions" />
+      <SectionHeader sa="मासिक सारांश" en={t('monthly.title')} sub={t('monthly.subtitle')} />
       <MonthNav year={year} month={month} onChange={loadMonth} />
 
       {loading && <LoadingSkeleton />}
@@ -117,8 +120,8 @@ export default function MonthlyPage() {
             <>
               <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>राशि परिवर्तन</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Sign Changes This Month</div>
-                <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>Planets changing signs alter the collective energy</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('monthly.signChanges')}</div>
+                <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('monthly.signChangesDesc')}</div>
               </div>
               {data.sign_changes.map((c, i) => <SignChangeCard key={i} c={c} />)}
             </>
@@ -129,8 +132,8 @@ export default function MonthlyPage() {
             <>
               <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>वक्री ग्रह</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Retrograde Planets</div>
-                <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>Retrograde planets intensify and internalize their effects</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('monthly.retrogrades')}</div>
+                <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('monthly.retroDesc')}</div>
               </div>
               {data.retrogrades.map((r, i) => (
                 <div key={i} style={cardStyle}>
@@ -146,7 +149,7 @@ export default function MonthlyPage() {
             <>
               <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>ग्रहण</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Eclipses This Month</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('monthly.eclipses')}</div>
               </div>
               {data.eclipses.map((e, i) => (
                 <div key={i} style={{ ...cardStyle, borderLeft: '3px solid var(--blood)' }}>
@@ -164,14 +167,14 @@ export default function MonthlyPage() {
               <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>ग्रह स्थिति</div>
                 <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>
-                  Planetary Positions — {data.month_name} 1, {data.year}
+                  {t('monthly.positions')}{data.month_name} 1, {data.year}
                 </div>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid var(--burnt-sienna)' }}>
-                      <th style={thStyle}>Graha</th><th style={thStyle}>Rashi</th><th style={thStyle}>Nak</th><th style={thStyle}>Dignity</th>
+                      <th style={thStyle}>{t('monthly.colGraha')}</th><th style={thStyle}>{t('monthly.colRashi')}</th><th style={thStyle}>{t('monthly.colNak')}</th><th style={thStyle}>{t('monthly.colDignity')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -199,8 +202,8 @@ export default function MonthlyPage() {
             <>
               <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>बृहत् संहिता — सक्रिय फल</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Active Brihat Samhita Predictions</div>
-                <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{data.total_predictions} classical rules active this month</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('monthly.bsPredictions')}</div>
+                <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{data.total_predictions}{t('monthly.rulesActive')}</div>
               </div>
               {data.predictions.map((p, i) => <PredictionCard key={i} p={p} />)}
             </>

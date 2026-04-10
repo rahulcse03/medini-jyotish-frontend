@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { SectionHeader, Divider, SeverityBadge } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 import { GRAHA_INFO, findGrahaKey, DIGNITY_COLORS, SEVERITY_STYLES } from '../data/constants';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 function KundliForm({ onGenerate, loading }) {
+  const { t } = useLang();
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [place, setPlace] = useState('');
@@ -37,20 +39,20 @@ function KundliForm({ onGenerate, loading }) {
   return (
     <div style={{ background: 'rgba(245,230,200,0.3)', border: '1px solid rgba(92,64,51,0.15)', padding: '24px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <div><label style={labelStyle}>Name (optional)</label><input style={inputStyle} type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" /></div>
-        <div><label style={labelStyle}>Birth Place</label><input style={inputStyle} type="text" value={place} onChange={e => setPlace(e.target.value)} placeholder="City" /></div>
+        <div><label style={labelStyle}>{t('kundli.name')}</label><input style={inputStyle} type="text" value={name} onChange={e => setName(e.target.value)} placeholder={t('kundli.namePh')} /></div>
+        <div><label style={labelStyle}>{t('kundli.place')}</label><input style={inputStyle} type="text" value={place} onChange={e => setPlace(e.target.value)} placeholder={t('kundli.placePh')} /></div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <div><label style={labelStyle}>Birth Date</label><input style={inputStyle} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
-        <div><label style={labelStyle}>Birth Time (local)</label><input style={inputStyle} type="time" value={time} onChange={e => setTime(e.target.value)} /></div>
+        <div><label style={labelStyle}>{t('kundli.date')}</label><input style={inputStyle} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
+        <div><label style={labelStyle}>{t('kundli.time')}</label><input style={inputStyle} type="time" value={time} onChange={e => setTime(e.target.value)} /></div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <div><label style={labelStyle}>Latitude</label><input style={inputStyle} type="number" step="0.0001" value={lat} onChange={e => setLat(e.target.value)} /></div>
-        <div><label style={labelStyle}>Longitude</label><input style={inputStyle} type="number" step="0.0001" value={lon} onChange={e => setLon(e.target.value)} /></div>
-        <div><label style={labelStyle}>Timezone (UTC±)</label><input style={inputStyle} type="number" step="0.5" value={tz} onChange={e => setTz(e.target.value)} /></div>
+        <div><label style={labelStyle}>{t('kundli.lat')}</label><input style={inputStyle} type="number" step="0.0001" value={lat} onChange={e => setLat(e.target.value)} /></div>
+        <div><label style={labelStyle}>{t('kundli.lon')}</label><input style={inputStyle} type="number" step="0.0001" value={lon} onChange={e => setLon(e.target.value)} /></div>
+        <div><label style={labelStyle}>{t('kundli.tz')}</label><input style={inputStyle} type="number" step="0.5" value={tz} onChange={e => setTz(e.target.value)} /></div>
       </div>
       <div style={{ marginBottom: 16 }}>
-        <label style={labelStyle}>Quick Select</label>
+        <label style={labelStyle}>{t('kundli.quickSelect')}</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {commonPlaces.map(p => (
             <button key={p.label} onClick={() => selectPlace(p)} style={{ fontFamily: 'var(--font-body)', fontSize: 11, padding: '4px 10px', background: place === p.label ? 'var(--burnt-sienna)' : 'rgba(184,134,11,0.08)', color: place === p.label ? 'var(--parchment-light)' : 'var(--burnt-sienna)', border: '1px solid rgba(92,64,51,0.15)', cursor: 'pointer' }}>{p.label}</button>
@@ -58,7 +60,7 @@ function KundliForm({ onGenerate, loading }) {
         </div>
       </div>
       <button onClick={handleSubmit} disabled={!date || !time || loading} style={{ width: '100%', padding: '14px', fontFamily: 'var(--font-devanagari)', fontSize: 16, background: 'var(--burnt-sienna)', color: 'var(--parchment-light)', border: 'none', cursor: date && time ? 'pointer' : 'not-allowed', letterSpacing: 2, opacity: date && time ? 1 : 0.5 }}>
-        {loading ? 'गणना हो रही है...' : 'कुण्डली बनाएं — Generate Kundli'}
+        {loading ? 'गणना हो रही है...' : `कुण्डली बनाएं — ${t('kundli.generate')}`}
       </button>
     </div>
   );
@@ -118,7 +120,7 @@ function InterpretationSection({ interpretation }) {
         <div style={{ marginBottom: 24 }}>
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
             <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 16, color: 'var(--ink)' }}>लग्न व्यक्तित्व</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>Your Personality</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>{t('kundli.personality')}</span>
           </div>
           <div style={{ background: 'rgba(245,230,200,0.3)', border: '1px solid rgba(92,64,51,0.15)', padding: '16px 20px' }}>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)', lineHeight: 1.8, marginBottom: 12 }}>
@@ -126,11 +128,11 @@ function InterpretationSection({ interpretation }) {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--sage)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Strengths</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--sage)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{t('kundli.strengths')}</div>
                 <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)' }}>{interp.lagna_personality.strengths}</div>
               </div>
               <div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--blood)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Challenges</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--blood)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{t('kundli.challenges')}</div>
                 <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)' }}>{interp.lagna_personality.challenges}</div>
               </div>
             </div>
@@ -143,7 +145,7 @@ function InterpretationSection({ interpretation }) {
         <div style={{ marginBottom: 24 }}>
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
             <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 16, color: 'var(--ink)' }}>विशेष ग्रह स्थिति</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>Notable Planetary Positions</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>{t('kundli.notablePositions')}</span>
           </div>
           {interp.dignity_highlights.map((h, i) => (
             <div key={i} style={{
@@ -182,7 +184,7 @@ function InterpretationSection({ interpretation }) {
         <div style={{ marginBottom: 24 }}>
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
             <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 16, color: 'var(--ink)' }}>वर्तमान दशा</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>Current Life Phase</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>{t('kundli.lifePhase')}</span>
           </div>
           <div style={{ background: 'rgba(74,103,65,0.05)', border: '1px solid rgba(74,103,65,0.15)', padding: '16px 20px' }}>
             <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)', textAlign: 'center', marginBottom: 4 }}>
@@ -217,7 +219,7 @@ function PlanetReadings({ readings }) {
     <div style={{ marginBottom: 24 }}>
       <div style={{ textAlign: 'center', marginBottom: 12 }}>
         <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 16, color: 'var(--ink)' }}>ग्रह फल</span>
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>Planetary Readings</span>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', marginLeft: 8 }}>{t('kundli.readings')}</span>
       </div>
       {shown.map((r, i) => {
         const info = GRAHA_INFO[findGrahaKey(r.graha)];
@@ -239,7 +241,7 @@ function PlanetReadings({ readings }) {
           color: 'var(--ochre)', background: 'none', border: '1px solid var(--ochre)',
           padding: '6px 20px', cursor: 'pointer',
         }}>
-          {expanded ? 'Show Less' : `Show All ${readings.length} Readings`}
+          {expanded ? t('kundli.showLess') : `${t('kundli.showAll')} ${readings.length} ${t('kundli.readingsLabel')}`}
         </button>
       )}
     </div>
@@ -283,6 +285,7 @@ function AskTheSage() {
 }
 
 export default function KundliPage() {
+  const { t } = useLang();
   const [kundli, setKundli] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -301,7 +304,7 @@ export default function KundliPage() {
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
-      <SectionHeader sa="जन्म कुण्डली" en="Birth Chart" sub="Enter birth details to generate your Vedic horoscope with interpretation" />
+      <SectionHeader sa="जन्म कुण्डली" en={t('kundli.title')} sub={t('kundli.subtitle')} />
       <KundliForm onGenerate={handleGenerate} loading={loading} />
 
       {error && (

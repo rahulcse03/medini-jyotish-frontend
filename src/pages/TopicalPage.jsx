@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getTopicalAnalysis } from '../api';
 import { SectionHeader, Divider } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 
 const SEV_STYLES = {
   calm:     { color: '#2D6B3F', bg: 'rgba(45,107,63,0.08)',  border: '#2D6B3F' },
@@ -10,19 +11,20 @@ const SEV_STYLES = {
 };
 
 function OverviewCard({ narrative, totalRules, date }) {
+  const { t } = useLang();
   return (
     <div style={{
       background: 'rgba(245,230,200,0.5)', border: '1px solid rgba(92,64,51,0.15)',
       borderLeft: '3px solid var(--ochre)', padding: '20px 24px', marginBottom: 20,
     }}>
       <div style={{ fontFamily: 'var(--font-sanskrit)', fontSize: 12, color: 'var(--ochre)', letterSpacing: 2, marginBottom: 10 }}>
-        समग्र दृष्टि · OVERVIEW
+        {t('topical.overview')}
       </div>
       <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)', lineHeight: 1.8 }}>
         {narrative}
       </div>
       <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', marginTop: 10 }}>
-        {totalRules} Brihat Samhita rules active · {date}
+        {totalRules}{t('topical.rulesActive')}{date}
       </div>
     </div>
   );
@@ -62,6 +64,7 @@ function PredictionCard({ pred, sevColor }) {
 }
 
 function TopicCard({ topic }) {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const sev = topic.severity || {};
   const style = SEV_STYLES[sev.key] || SEV_STYLES.watchful;
@@ -112,7 +115,7 @@ function TopicCard({ topic }) {
           }} />
         </div>
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)' }}>
-          {evidence.length} indicators · {preds.length} predictions
+        {evidence.length}{t('topical.indicators')}{preds.length}{t('topical.predictions')}
         </span>
       </div>
 
@@ -122,7 +125,7 @@ function TopicCard({ topic }) {
           {evidence.length > 0 && (
             <>
               <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', letterSpacing: 1.5, marginBottom: 6, textTransform: 'uppercase' }}>
-                Planetary Evidence
+                {t('topical.evidence')}
               </div>
               <ul style={{ margin: '0 0 12px', paddingLeft: 18 }}>
                 {evidence.map((ev, i) => <EvidenceItem key={i} ev={ev} />)}
@@ -132,7 +135,7 @@ function TopicCard({ topic }) {
           {preds.length > 0 && (
             <>
               <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', letterSpacing: 1.5, marginBottom: 6, textTransform: 'uppercase' }}>
-                Brihat Samhita References
+                {t('topical.bsReferences')}
               </div>
               {preds.map((p, i) => <PredictionCard key={i} pred={p} sevColor={style.color} />)}
             </>
@@ -141,31 +144,32 @@ function TopicCard({ topic }) {
       )}
 
       <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', textAlign: 'right', marginTop: 6 }}>
-        {expanded ? '▲ collapse' : '▼ tap to expand'}
+        {expanded ? t('topical.collapse') : t('topical.expand')}
       </div>
     </div>
   );
 }
 
 function GrahaSnapshot({ grahas }) {
+  const { t } = useLang();
   if (!grahas || grahas.length === 0) return null;
 
   const dignityLabel = {
-    uccha: 'उच्च Exalted', neecha: 'नीच Debilitated',
-    swakshetra: 'स्वक्षेत्र Own Sign', moolatrikona: 'मूलत्रिकोण Moolatrikona',
+    uccha: t('dignity.uccha') + ' Exalted', neecha: t('dignity.neecha') + ' Debilitated',
+    swakshetra: t('dignity.swakshetra') + ' Own Sign', moolatrikona: t('dignity.moolatrikona') + ' Moolatrikona',
   };
 
   return (
     <>
       <Divider />
-      <SectionHeader sa="ग्रह स्थिति" en="Current Planetary Positions" />
+      <SectionHeader sa="ग्रह स्थिति" en={t('topical.positions')} />
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '2px solid var(--burnt-sienna)', textAlign: 'left' }}>
-              <th style={{ padding: 6, color: 'var(--ochre)', fontSize: 11 }}>GRAHA</th>
-              <th style={{ padding: 6, color: 'var(--ochre)', fontSize: 11 }}>RASHI</th>
-              <th style={{ padding: 6, color: 'var(--ochre)', fontSize: 11 }}>DIGNITY</th>
+              <th style={{ padding: 6, color: 'var(--ochre)', fontSize: 11 }}>{t('topical.colGraha')}</th>
+              <th style={{ padding: 6, color: 'var(--ochre)', fontSize: 11 }}>{t('topical.colRashi')}</th>
+              <th style={{ padding: 6, color: 'var(--ochre)', fontSize: 11 }}>{t('topical.colDignity')}</th>
             </tr>
           </thead>
           <tbody>
@@ -188,6 +192,7 @@ function GrahaSnapshot({ grahas }) {
 }
 
 export default function TopicalPage() {
+  const { t } = useLang();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -199,7 +204,7 @@ export default function TopicalPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="loading-msg">Analysing the sky…</div>;
+  if (loading) return <div className="loading-msg">{t('loading.analysing')}</div>;
   if (error) return <div className="error-msg">Error: {error}</div>;
   if (!data) return null;
 
@@ -208,9 +213,9 @@ export default function TopicalPage() {
 
   return (
     <div className="page-content" style={{ maxWidth: 780, margin: '0 auto' }}>
-      <SectionHeader sa="सामयिक विश्लेषण" en="What Does the Sky Say Right Now?" />
+      <SectionHeader sa="सामयिक विश्लेषण" en={t('topical.title')} />
       <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--ochre)', textAlign: 'center', marginBottom: 16 }}>
-        आज आकाश क्या कहता है? · Live topical analysis based on Brihat Samhita · {data.analysis_date}
+        आज आकाश क्या कहता है? · {t('topical.subtitle')} · {data.analysis_date}
       </div>
 
       <OverviewCard

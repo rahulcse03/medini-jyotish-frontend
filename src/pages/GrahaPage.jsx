@@ -1,4 +1,5 @@
 import { SectionHeader } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 import RashiChakra from '../components/RashiChakra';
 import { GRAHA_INFO, DIGNITY_COLORS, findGrahaKey } from '../data/constants';
 
@@ -58,6 +59,7 @@ function GrahaRow({ g, delay }) {
 }
 
 export default function GrahaPage({ data }) {
+  const { t } = useLang();
   const positions = data?.positions || [];
 
   // Build grahas map for chakra
@@ -71,8 +73,8 @@ export default function GrahaPage({ data }) {
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
       <SectionHeader
         sa="ग्रह गोचर"
-        en="Planetary Positions"
-        sub="Navagraha positions in Sidereal zodiac (Lahiri Ayanamsha)"
+        en={t('graha.title')}
+        sub={t('graha.subtitle')}
       />
 
       <RashiChakra grahas={grahasForChakra} />
@@ -89,12 +91,12 @@ export default function GrahaPage({ data }) {
           fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--burnt-sienna)',
           letterSpacing: 2, textTransform: 'uppercase',
         }}>
-          <div>Graha</div>
-          <div>Rashi &amp; Degree</div>
-          <div>Nakshatra</div>
-          <div>Pada</div>
-          <div>Dignity</div>
-          <div>Status</div>
+          <div>{t('graha.colGraha')}</div>
+          <div>{t('graha.colRashi')}</div>
+          <div>{t('graha.colNak')}</div>
+          <div>{t('graha.colPada')}</div>
+          <div>{t('graha.colDignity')}</div>
+          <div>{t('graha.colStatus')}</div>
         </div>
 
         {positions.map((g, i) => (

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { SectionHeader, LoadingSkeleton } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 import { GRAHA_INFO, findGrahaKey, DIGNITY_COLORS } from '../data/constants';
 import { getNationsList, getNationKundli } from '../api';
 
@@ -28,6 +29,7 @@ function NationCard({ nation, onClick, selected }) {
 
 /* Compact bar shown after a nation is selected — replaces the full grid */
 function SelectedNationBar({ nation, onChangeClick }) {
+  const { t } = useLang();
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
@@ -48,21 +50,22 @@ function SelectedNationBar({ nation, onChangeClick }) {
         onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
         onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
       >
-        ↻ Change Nation
+        {t('nation.changeNation')}
       </button>
     </div>
   );
 }
 
 function GrahaTable({ grahas }) {
+  const { t } = useLang();
   const order = ['surya', 'chandra', 'mangal', 'budh', 'guru', 'shukra', 'shani', 'rahu', 'ketu'];
   return (
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '2px solid var(--burnt-sienna)' }}>
-            <th style={thStyle}>Graha</th><th style={thStyle}>Rashi</th><th style={thStyle}>Nak</th>
-            <th style={thStyle}>House</th><th style={thStyle}>Dignity</th>
+            <th style={thStyle}>{t('nation.colGraha')}</th><th style={thStyle}>{t('nation.colRashi')}</th><th style={thStyle}>{t('nation.colNak')}</th>
+            <th style={thStyle}>{t('nation.colHouse')}</th><th style={thStyle}>{t('nation.colDignity')}</th>
           </tr>
         </thead>
         <tbody>
@@ -95,6 +98,7 @@ function GrahaTable({ grahas }) {
 }
 
 function DashaTable({ dasha }) {
+  const { t } = useLang();
   if (!dasha?.periods) return null;
   const currentLord = dasha.current_dasha?.lord;
   return (
@@ -102,7 +106,7 @@ function DashaTable({ dasha }) {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '2px solid var(--burnt-sienna)' }}>
-            <th style={thStyle}>Lord</th><th style={thStyle}>Years</th><th style={thStyle}>Period</th>
+            <th style={thStyle}>{t('nation.dashaLord')}</th><th style={thStyle}>{t('nation.dashaYears')}</th><th style={thStyle}>{t('nation.dashaPeriod')}</th>
           </tr>
         </thead>
         <tbody>
@@ -122,29 +126,31 @@ function DashaTable({ dasha }) {
   );
 }
 
-function TransitCard({ t }) {
-  const toneColor = t.tone === 'positive' ? 'var(--sage)' : 'var(--blood)';
-  const toneLabel = t.tone === 'positive' ? 'शुभ Favorable' : 'सावधान Challenging';
+function TransitCard({ tr }) {
+  const { t } = useLang();
+  const toneColor = tr.tone === 'positive' ? 'var(--sage)' : 'var(--blood)';
+  const toneLabel = tr.tone === 'positive' ? 'शुभ ' + t('nation.favorable') : 'सावधान ' + t('nation.challenging');
   return (
     <div style={cardStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         <div>
-          <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 15, color: 'var(--ink)', fontWeight: 600 }}>{t.graha_sa}</span>
-          <span style={{ fontSize: 13, color: 'var(--burnt-sienna)', marginLeft: 6 }}>{t.graha}{t.is_retrograde ? ' (वक्री Retrograde)' : ''}</span>
+          <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 15, color: 'var(--ink)', fontWeight: 600 }}>{tr.graha_sa}</span>
+          <span style={{ fontSize: 13, color: 'var(--burnt-sienna)', marginLeft: 6 }}>{tr.graha}{tr.is_retrograde ? t('nation.retrograde') : ''}</span>
         </div>
         <span style={{ fontSize: 11, color: toneColor, border: `1px solid ${toneColor}`, padding: '2px 10px' }}>{toneLabel}</span>
       </div>
       <div style={{ fontSize: 12, color: 'var(--ochre)', marginBottom: 6 }}>
-        Transiting {t.rashi_sa} {t.rashi} → House {t.transit_house} ({t.house_name_sa} · {t.house_name})
+        {t('nation.transiting')} {tr.rashi_sa} {tr.rashi} → House {tr.transit_house} ({tr.house_name_sa} · {tr.house_name})
       </div>
       <div style={{ fontSize: 13, color: 'var(--burnt-sienna)', lineHeight: 1.7 }}>
-        {t.graha} currently {t.reading}
+        {tr.graha}{t('nation.currently')}{tr.reading}
       </div>
     </div>
   );
 }
 
 export default function NationPage() {
+  const { t } = useLang();
   const [nations, setNations] = useState([]);
   const [selected, setSelected] = useState(null);
   const [kundli, setKundli] = useState(null);
@@ -181,7 +187,7 @@ export default function NationPage() {
 
   return (
     <div>
-      <SectionHeader sa="राष्ट्र कुण्डली" en="Nation Horoscopes" sub="Vedic birth charts of nations based on their founding moments" />
+      <SectionHeader sa="राष्ट्र कुण्डली" en={t('nation.title')} sub={t('nation.subtitle')} />
 
       {/* Show compact bar when a nation is selected and grid is hidden */}
       {selected && !showGrid && selectedNation && (
@@ -222,13 +228,13 @@ export default function NationPage() {
           {kundli.interpretation?.lagna_summary?.personality && (
             <div style={cardStyle}>
               <div style={{ fontSize: 14, color: 'var(--ink)', lineHeight: 1.7 }}>
-                <strong>Personality:</strong> {kundli.interpretation.lagna_summary.personality}
+                <strong>{t('nation.personalityF')}</strong> {kundli.interpretation.lagna_summary.personality}
               </div>
               <div style={{ fontSize: 13, color: 'var(--sage)', marginTop: 6 }}>
-                <strong>Strengths:</strong> {kundli.interpretation.lagna_summary.strengths}
+                <strong>{t('nation.strengthsF')}</strong> {kundli.interpretation.lagna_summary.strengths}
               </div>
               <div style={{ fontSize: 13, color: 'var(--blood)', marginTop: 4 }}>
-                <strong>Challenges:</strong> {kundli.interpretation.lagna_summary.challenges}
+                <strong>{t('nation.challengesF')}</strong> {kundli.interpretation.lagna_summary.challenges}
               </div>
             </div>
           )}
@@ -238,8 +244,8 @@ export default function NationPage() {
             <>
               <div style={{ textAlign: 'center', margin: '28px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 22, color: 'var(--ink)' }}>वर्तमान विश्लेषण</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Current Analysis</div>
-                <div style={{ fontSize: 11, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>What the stars say about {kundli.nation?.name || 'this nation'} right now</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.analysis')}</div>
+                <div style={{ fontSize: 11, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('nation.starsSay')} {kundli.nation?.name || 'this nation'}{t('nation.rightNow')}</div>
               </div>
 
               {/* Current Mahadasha */}
@@ -266,10 +272,10 @@ export default function NationPage() {
                 <>
                   <div style={{ textAlign: 'center', margin: '24px 0 14px' }}>
                     <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)' }}>वार्षिक गोचर — {kundli.current_analysis.analysis_year || new Date().getFullYear()}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>This Year's Major Transits over {kundli.nation?.name || 'Nation'}'s Chart</div>
-                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>Slow-moving planets — these influences last months to years</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.yearTransits')} {kundli.nation?.name || 'Nation'}{t('nation.chart')}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('nation.slowPlanets')}</div>
                   </div>
-                  {kundli.current_analysis.yearly_transits.map((t, i) => <TransitCard key={`y${i}`} t={t} />)}
+                  {kundli.current_analysis.yearly_transits.map((tr, i) => <TransitCard key={`y${i}`} tr={tr} />)}
                 </>
               )}
 
@@ -278,10 +284,10 @@ export default function NationPage() {
                 <>
                   <div style={{ textAlign: 'center', margin: '24px 0 14px' }}>
                     <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)' }}>मासिक गोचर — {kundli.current_analysis.analysis_month || ''}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>This Month's Transits over {kundli.nation?.name || 'Nation'}'s Chart</div>
-                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>Faster planets — these influences shift every few weeks</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.monthTransits')} {kundli.nation?.name || 'Nation'}{t('nation.chart')}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('nation.fastPlanets')}</div>
                   </div>
-                  {kundli.current_analysis.monthly_transits.map((t, i) => <TransitCard key={`m${i}`} t={t} />)}
+                  {kundli.current_analysis.monthly_transits.map((tr, i) => <TransitCard key={`m${i}`} tr={tr} />)}
                 </>
               )}
 
@@ -290,10 +296,10 @@ export default function NationPage() {
                 <>
                   <div style={{ textAlign: 'center', margin: '24px 0 14px' }}>
                     <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)' }}>साप्ताहिक चन्द्र गोचर</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>This Week's Moon Transit over {kundli.nation?.name || 'Nation'}'s Chart</div>
-                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>Moon changes sign every ~2.5 days — this reading shifts quickly</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.weekMoon')} {kundli.nation?.name || 'Nation'}{t('nation.chart')}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('nation.moonChange')}</div>
                   </div>
-                  <TransitCard t={kundli.current_analysis.weekly_transit} />
+                  <TransitCard tr={kundli.current_analysis.weekly_transit} />
                 </>
               )}
 
@@ -302,8 +308,8 @@ export default function NationPage() {
                 <>
                   <div style={{ textAlign: 'center', margin: '24px 0 14px' }}>
                     <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 18, color: 'var(--ink)' }}>स्थायी विशेषताएँ</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Permanent Birth Chart Traits</div>
-                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>Enduring characteristics from the nation's founding chart</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.permanentTraits')}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>{t('nation.traitsDesc')}</div>
                   </div>
                   {kundli.current_analysis.key_themes.map((th, i) => (
                     <div key={i} style={{ ...cardStyle, fontSize: 13, color: 'var(--ink)', lineHeight: 1.7 }}>{th}</div>
@@ -316,17 +322,17 @@ export default function NationPage() {
           {/* Graha positions */}
           <div style={{ textAlign: 'center', margin: '24px 0 16px' }}>
             <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>ग्रह स्थिति</div>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Birth Chart Positions</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.birthPositions')}</div>
           </div>
           <GrahaTable grahas={kundli.grahas} />
 
           {/* Dasha */}
           <div style={{ textAlign: 'center', margin: '24px 0 16px' }}>
             <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>विंशोत्तरी दशा</div>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Vimshottari Dasha</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.dasha')}</div>
             {kundli.vimshottari_dasha && (
               <div style={{ fontSize: 11, color: 'var(--ochre)', marginTop: 4, fontStyle: 'italic' }}>
-                Birth Nakshatra: {kundli.vimshottari_dasha.birth_nakshatra_sa} · Lord: {kundli.vimshottari_dasha.birth_nakshatra_lord}
+                {t('nation.birthNak')} {kundli.vimshottari_dasha.birth_nakshatra_sa}{t('nation.lordSep')} {kundli.vimshottari_dasha.birth_nakshatra_lord}
               </div>
             )}
           </div>
@@ -337,7 +343,7 @@ export default function NationPage() {
             <>
               <div style={{ textAlign: 'center', margin: '24px 0 16px' }}>
                 <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 20, color: 'var(--ink)' }}>कुण्डली व्याख्या</div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>Chart Interpretation</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('nation.interpretation')}</div>
               </div>
               {kundli.interpretation.houses.filter(h => h.text).map((h, i) => (
                 <div key={i} style={cardStyle}>

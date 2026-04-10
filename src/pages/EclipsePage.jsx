@@ -1,4 +1,5 @@
 import { SectionHeader, SeverityBadge, Divider } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 import { useState } from 'react';
 
 function utcToLocal(utcStr) {
@@ -22,6 +23,7 @@ function utcToDate(utcStr) {
 }
 
 function EclipseCard({ eclipse, index }) {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const isSolar = eclipse.kind === 'solar';
 
@@ -65,12 +67,12 @@ function EclipseCard({ eclipse, index }) {
         border: '1px solid rgba(184,134,11,0.1)',
       }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ochre)', marginBottom: 4 }}>Rashi</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ochre)', marginBottom: 4 }}>{t('eclipse.rashi')}</div>
           <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 15, color: 'var(--ink)' }}>{eclipse.rashi_sa}</span>
           <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--burnt-sienna)', marginLeft: 8 }}>{eclipse.rashi} {eclipse.degree_in_rashi}°</span>
         </div>
         <div>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ochre)', marginBottom: 4 }}>Nakshatra</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ochre)', marginBottom: 4 }}>{t('eclipse.nakshatra')}</div>
           <span style={{ fontFamily: 'var(--font-devanagari)', fontSize: 15, color: 'var(--ink)' }}>{eclipse.nakshatra_sa}</span>
           <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--burnt-sienna)', marginLeft: 8 }}>Pada {eclipse.pada}</span>
         </div>
@@ -94,22 +96,22 @@ function EclipseCard({ eclipse, index }) {
       {expanded && (
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(92,64,51,0.1)', animation: 'fadeIn 0.3s ease' }}>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--burnt-sienna)', lineHeight: 2.2 }}>
-            <div><strong>Affected regions:</strong> {eclipse.affected_regions?.join(', ')}</div>
-            <div><strong>Direction:</strong> {eclipse.direction}</div>
-            <div><strong>Effect category:</strong> {eclipse.effect_category}</div>
-            <div><strong>Duration of effects:</strong> {eclipse.effect_duration_months} months</div>
-            <div><strong>Nakshatra-specific effect:</strong> {eclipse.nakshatra_effect}</div>
-            <div><strong>Source:</strong> {eclipse.source}</div>
+            <div><strong>{t('eclipse.affectedRegions')}</strong> {eclipse.affected_regions?.join(', ')}</div>
+            <div><strong>{t('eclipse.direction')}</strong> {eclipse.direction}</div>
+            <div><strong>{t('eclipse.effectCategory')}</strong> {eclipse.effect_category}</div>
+            <div><strong>{t('eclipse.effectDuration')}</strong> {eclipse.effect_duration_months} {t('eclipse.months')}</div>
+            <div><strong>{t('eclipse.nakshatraEffect')}</strong> {eclipse.nakshatra_effect}</div>
+            <div><strong>{t('eclipse.source')}</strong> {eclipse.source}</div>
 
             {eclipse.timing && (
               <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(92,64,51,0.08)' }}>
-                <strong>Eclipse timing:</strong>
-                {eclipse.timing.penumbral_begin_utc && <div>Penumbral begin: {utcToLocal(eclipse.timing.penumbral_begin_utc)}</div>}
-                {eclipse.timing.partial_begin_utc && <div>Partial begin: {utcToLocal(eclipse.timing.partial_begin_utc)}</div>}
-                {eclipse.timing.total_begin_utc && <div>Totality begin: {utcToLocal(eclipse.timing.total_begin_utc)}</div>}
-                {eclipse.timing.total_end_utc && <div>Totality end: {utcToLocal(eclipse.timing.total_end_utc)}</div>}
-                {eclipse.timing.partial_end_utc && <div>Partial end: {utcToLocal(eclipse.timing.partial_end_utc)}</div>}
-                {eclipse.timing.penumbral_end_utc && <div>Penumbral end: {utcToLocal(eclipse.timing.penumbral_end_utc)}</div>}
+                <strong>{t('eclipse.timing')}</strong>
+                {eclipse.timing.penumbral_begin_utc && <div>{t('eclipse.penumbralBegin')} {utcToLocal(eclipse.timing.penumbral_begin_utc)}</div>}
+                {eclipse.timing.partial_begin_utc && <div>{t('eclipse.partialBegin')} {utcToLocal(eclipse.timing.partial_begin_utc)}</div>}
+                {eclipse.timing.total_begin_utc && <div>{t('eclipse.totalityBegin')} {utcToLocal(eclipse.timing.total_begin_utc)}</div>}
+                {eclipse.timing.total_end_utc && <div>{t('eclipse.totalityEnd')} {utcToLocal(eclipse.timing.total_end_utc)}</div>}
+                {eclipse.timing.partial_end_utc && <div>{t('eclipse.partialEnd')} {utcToLocal(eclipse.timing.partial_end_utc)}</div>}
+                {eclipse.timing.penumbral_end_utc && <div>{t('eclipse.penumbralEnd')} {utcToLocal(eclipse.timing.penumbral_end_utc)}</div>}
               </div>
             )}
           </div>
@@ -120,19 +122,20 @@ function EclipseCard({ eclipse, index }) {
 }
 
 export default function EclipsePage({ data }) {
+  const { t } = useLang();
   if (!data) return null;
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
       <SectionHeader
         sa="ग्रहण फल"
-        en="Eclipse Analysis"
-        sub={`${data.total_upcoming} upcoming eclipses with Brihat Samhita interpretation`}
+        en={t('eclipse.title')}
+        sub={`${data.total_upcoming}${t('eclipse.subtitle')}`}
       />
 
       {data.eclipses?.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 40, color: 'var(--burnt-sienna)', fontStyle: 'italic' }}>
-          No upcoming eclipses found.
+          {t('eclipse.none')}
         </div>
       ) : (
         data.eclipses?.map((ecl, i) => (
@@ -141,8 +144,8 @@ export default function EclipsePage({ data }) {
       )}
 
       <div style={{ textAlign: 'center', marginTop: 24, fontSize: 11, color: 'var(--burnt-sienna)', fontStyle: 'italic', lineHeight: 1.8 }}>
-        Eclipse interpretations based on Brihat Samhita Ch. 5-6 by Varahamihira
-        <br />Tap any eclipse to see detailed analysis
+        {t('eclipse.attribution')}
+        <br />{t('eclipse.tapDetails')}
       </div>
     </div>
   );

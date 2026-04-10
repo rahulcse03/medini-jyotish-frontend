@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getFinancialAnalysis } from '../api';
 import { SectionHeader, Divider } from '../components/Shared';
+import { useLang } from '../i18n/LanguageContext';
 import { GRAHA_INFO } from '../data/constants';
 
 const OUTLOOK_STYLES = {
@@ -12,6 +13,7 @@ const OUTLOOK_STYLES = {
 };
 
 function CyclePhaseCard({ cycle }) {
+  const { t } = useLang();
   const phase = cycle.current_phase || {};
   const progress = phase.cycle_progress_pct || 0;
 
@@ -43,7 +45,7 @@ function CyclePhaseCard({ cycle }) {
         <div style={{ height: '100%', width: `${progress}%`, background: 'var(--ochre)', borderRadius: 3, transition: 'width 0.6s ease' }} />
       </div>
       <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', marginTop: 4 }}>
-        Cycle progress: {progress}%
+        {t('financial.cycleProgress')}{progress}%
       </div>
     </div>
   );
@@ -62,6 +64,7 @@ function EventCard({ label, children }) {
 }
 
 function SentimentGauge({ sentiment }) {
+  const { t } = useLang();
   const score = sentiment.score || 0;
   const color = score > 0 ? 'var(--sage, #2D6B3F)' : score < 0 ? 'var(--blood, #8B2500)' : 'var(--ochre)';
 
@@ -78,7 +81,7 @@ function SentimentGauge({ sentiment }) {
         </div>
       </div>
       <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', marginBottom: 8 }}>
-        Scale: -5 (extreme fear) to +5 (extreme greed)
+        {t('financial.gaugeScale')}
       </div>
       {/* Visual gauge */}
       <div style={{ position: 'relative', height: 8, background: 'linear-gradient(to right, #8B2500, #9A7209, #2D6B3F)', borderRadius: 4, marginBottom: 14 }}>
@@ -171,14 +174,15 @@ function CommodityCard({ commodity, index }) {
 }
 
 function HistoryTimeline({ history }) {
+  const { t } = useLang();
   return (
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: 13 }}>
         <thead>
           <tr style={{ borderBottom: '2px solid var(--burnt-sienna)', textAlign: 'left' }}>
-            <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11, letterSpacing: 1 }}>YEAR</th>
-            <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>RASHI</th>
-            <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>ECONOMIC EVENT</th>
+            <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11, letterSpacing: 1 }}>{t('financial.colYear')}</th>
+            <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>{t('financial.colRashi')}</th>
+            <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>{t('financial.colEvent')}</th>
           </tr>
         </thead>
         <tbody>
@@ -200,6 +204,7 @@ function HistoryTimeline({ history }) {
 }
 
 export default function FinancialPage() {
+  const { t } = useLang();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -235,8 +240,8 @@ export default function FinancialPage() {
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
       <SectionHeader
         sa="आर्थिक ज्योतिष"
-        en="Financial Astrology"
-        sub={`Guru-Shani cycles, commodity outlook & market sentiment · ${data.analysis_date}`}
+        en={t('financial.title')}
+        sub={`${t('financial.subtitle')} · ${data.analysis_date}`}
       />
 
       {/* Guru-Shani Cycle Phase */}
@@ -244,7 +249,7 @@ export default function FinancialPage() {
 
       {/* Key Events */}
       {lastConj && (
-        <EventCard label="Last Conjunction">
+        <EventCard label={t('financial.lastConj')}>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)' }}>
             {lastConj.year} — <span style={{ fontFamily: 'var(--font-sanskrit)' }}>{lastConj.rashi_sa}</span> ({lastConj.rashi})
           </div>
@@ -254,14 +259,14 @@ export default function FinancialPage() {
         </EventCard>
       )}
       {nextConj && (
-        <EventCard label="Next Conjunction">
+        <EventCard label={t('financial.nextConj')}>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)' }}>
             {nextConj.date} — <span style={{ fontFamily: 'var(--font-sanskrit)' }}>{nextConj.rashi_sa}</span> ({nextConj.rashi})
           </div>
         </EventCard>
       )}
       {nextOpp && (
-        <EventCard label="Next Opposition">
+        <EventCard label={t('financial.nextOppo')}>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)' }}>
             {nextOpp.date} — Guru in <span style={{ fontFamily: 'var(--font-sanskrit)' }}>{nextOpp.guru_rashi_sa}</span> / Shani in <span style={{ fontFamily: 'var(--font-sanskrit)' }}>{nextOpp.shani_rashi_sa}</span>
           </div>
@@ -271,27 +276,27 @@ export default function FinancialPage() {
       <Divider />
 
       {/* Market Sentiment */}
-      <SectionHeader sa="बाज़ार भावना" en="Market Sentiment" sub="Composite indicator from all planetary factors" />
+      <SectionHeader sa="बाज़ार भावना" en={t('financial.sentiment')} sub={t('financial.sentimentDesc')} />
       <SentimentGauge sentiment={sentiment} />
 
       <Divider />
 
       {/* Commodity Outlook */}
-      <SectionHeader sa="वस्तु दृष्टि" en="Commodity Outlook" sub="Based on planetary significations from Brihat Samhita" />
+      <SectionHeader sa="वस्तु दृष्टि" en={t('financial.commodity')} sub={t('financial.commodityDesc')} />
       {commodities.map((c, i) => <CommodityCard key={c.key} commodity={c} index={i} />)}
 
       <Divider />
 
       {/* Transit Validity Timeline */}
-      <SectionHeader sa="ग्रह गोचर काल" en="Transit Validity Timeline" sub="When each planet changes sign — and how long current readings hold" />
+      <SectionHeader sa="ग्रह गोचर काल" en={t('financial.validity')} sub={t('financial.validityDesc')} />
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '2px solid var(--burnt-sienna)', textAlign: 'left' }}>
-              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11, letterSpacing: 1 }}>GRAHA</th>
-              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>CURRENT RASHI</th>
-              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>NEXT CHANGE</th>
-              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>VALID FOR</th>
+              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11, letterSpacing: 1 }}>{t('financial.colGraha')}</th>
+              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>{t('financial.colCurRashi')}</th>
+              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>{t('financial.colNextChange')}</th>
+              <th style={{ padding: '10px 8px', color: 'var(--ochre)', fontSize: 11 }}>{t('financial.colValidFor')}</th>
             </tr>
           </thead>
           <tbody>
@@ -327,15 +332,15 @@ export default function FinancialPage() {
       <Divider />
 
       {/* Historical Timeline */}
-      <SectionHeader sa="ऐतिहासिक गुरु-शनि युति" en="Historical Conjunctions" sub="The ~20-year cycle that shapes world economic orders" />
+      <SectionHeader sa="ऐतिहासिक गुरु-शनि युति" en={t('financial.historical')} sub={t('financial.historicalDesc')} />
       <HistoryTimeline history={history} />
 
       <div style={{
         textAlign: 'center', marginTop: 24, fontSize: 11,
         color: 'var(--burnt-sienna)', fontStyle: 'italic', lineHeight: 1.8,
       }}>
-        Based on Brihat Samhita commodity significations & classical Jyotish principles
-        <br />This is educational content, not financial advice · Tap any commodity for details
+        {t('financial.attribution')}
+        <br />{t('financial.disclaimer')}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { SEVERITY_STYLES } from '../data/constants';
+import { useLang, LANGUAGES } from '../i18n/LanguageContext';
 
 export function Divider() {
   return (
@@ -30,43 +31,67 @@ export function SeverityBadge({ severity, sa }) {
 }
 
 const NAV_TABS = [
-  { key: 'graha',       sa: 'ग्रह गोचर',    en: 'Graha' },
-  { key: 'panchang',    sa: 'पञ्चाङ्ग',     en: 'Panchang' },
-  { key: 'medini',      sa: 'मेदिनी फल',    en: 'Predictions' },
-  { key: 'eclipse',     sa: 'ग्रहण फल',     en: 'Eclipses' },
-  { key: 'samvatsara',  sa: 'संवत्सर फल',   en: 'Annual' },
-  { key: 'kundli',      sa: 'जन्म कुण्डली', en: 'Kundli' },
-  { key: 'nations',     sa: 'राष्ट्र कुण्डली', en: 'Nations' },
-  { key: 'monthly',     sa: 'मासिक सारांश',  en: 'Monthly' },
-  { key: 'financial',   sa: 'आर्थिक ज्योतिष', en: 'Financial' },
-  { key: 'topical',     sa: 'सामयिक विश्लेषण', en: 'Topical' },
+  { key: 'graha',       sa: 'ग्रह गोचर',    tKey: 'nav.graha' },
+  { key: 'panchang',    sa: 'पञ्चाङ्ग',     tKey: 'nav.panchang' },
+  { key: 'medini',      sa: 'मेदिनी फल',    tKey: 'nav.medini' },
+  { key: 'eclipse',     sa: 'ग्रहण फल',     tKey: 'nav.eclipse' },
+  { key: 'samvatsara',  sa: 'संवत्सर फल',   tKey: 'nav.samvatsara' },
+  { key: 'kundli',      sa: 'जन्म कुण्डली', tKey: 'nav.kundli' },
+  { key: 'nations',     sa: 'राष्ट्र कुण्डली', tKey: 'nav.nations' },
+  { key: 'monthly',     sa: 'मासिक सारांश',  tKey: 'nav.monthly' },
+  { key: 'financial',   sa: 'आर्थिक ज्योतिष', tKey: 'nav.financial' },
+  { key: 'topical',     sa: 'सामयिक विश्लेषण', tKey: 'nav.topical' },
 ];
 
 export function Nav({ active, setActive }) {
+  const { t } = useLang();
   return (
     <nav style={{ display: 'flex', justifyContent: 'center', borderBottom: '2px solid var(--burnt-sienna)', marginBottom: 36, flexWrap: 'wrap' }}>
-      {NAV_TABS.map(t => (
-        <button key={t.key} onClick={() => setActive(t.key)} style={{
-          background: active === t.key ? 'var(--burnt-sienna)' : 'transparent',
-          color: active === t.key ? 'var(--parchment-light)' : 'var(--burnt-sienna)',
+      {NAV_TABS.map(tab => (
+        <button key={tab.key} onClick={() => setActive(tab.key)} style={{
+          background: active === tab.key ? 'var(--burnt-sienna)' : 'transparent',
+          color: active === tab.key ? 'var(--parchment-light)' : 'var(--burnt-sienna)',
           border: 'none', padding: '12px 16px', cursor: 'pointer',
           fontFamily: 'var(--font-devanagari)', fontSize: 13,
           letterSpacing: 1, transition: 'all 0.3s ease',
-          borderTop: active === t.key ? '2px solid var(--ochre)' : '2px solid transparent',
+          borderTop: active === tab.key ? '2px solid var(--ochre)' : '2px solid transparent',
         }}>
-          {t.sa}
-          <span style={{ display: 'block', fontFamily: 'var(--font-body)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase', marginTop: 2, opacity: 0.7 }}>{t.en}</span>
+          {tab.sa}
+          <span style={{ display: 'block', fontFamily: 'var(--font-body)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase', marginTop: 2, opacity: 0.7 }}>{t(tab.tKey)}</span>
         </button>
       ))}
     </nav>
   );
 }
 
+export function LanguageSelector() {
+  const { lang, setLang, t } = useLang();
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, margin: '0 0 8px' }}>
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--ochre)', letterSpacing: 1, textTransform: 'uppercase' }}>{t('lang.label')}</span>
+      <select
+        value={lang}
+        onChange={e => setLang(e.target.value)}
+        style={{
+          fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--ink)',
+          background: 'rgba(245,230,200,0.6)', border: '1px solid rgba(92,64,51,0.2)',
+          padding: '3px 8px', cursor: 'pointer', outline: 'none',
+        }}
+      >
+        {LANGUAGES.map(l => (
+          <option key={l.code} value={l.code}>{l.native}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export function LoadingSkeleton() {
+  const { t } = useLang();
   return (
     <div style={{ textAlign: 'center', padding: '60px 20px', animation: 'shimmer 2s ease-in-out infinite' }}>
       <div style={{ fontFamily: 'var(--font-sanskrit)', fontSize: 24, color: 'var(--ochre)', marginBottom: 8 }}>गणना चल रही है...</div>
-      <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--burnt-sienna)', fontStyle: 'italic' }}>Calculating planetary positions...</div>
+      <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--burnt-sienna)', fontStyle: 'italic' }}>{t('loading.positions')}</div>
     </div>
   );
 }

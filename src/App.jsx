@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getGrahaPositions, getPanchang, getMediniPredictions, getEclipseAnalysis, getSamvatsaraPhala } from './api';
-import { Nav, Divider, LoadingSkeleton } from './components/Shared';
+import { Nav, Divider, LoadingSkeleton, LanguageSelector } from './components/Shared';
+import { useLang } from './i18n/LanguageContext';
 import GrahaPage from './pages/GrahaPage';
 import PanchangPage from './pages/PanchangPage';
 import MediniPage from './pages/MediniPage';
@@ -15,6 +16,7 @@ import TopicalPage from './pages/TopicalPage';
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 export default function App() {
+  const { t } = useLang();
   const [active, setActive] = useState('graha');
   const [grahaData, setGrahaData] = useState(null);
   const [panchangData, setPanchangData] = useState(null);
@@ -35,7 +37,7 @@ export default function App() {
         getGrahaPositions(), getPanchang(), getMediniPredictions(), getEclipseAnalysis(), getSamvatsaraPhala(),
       ]);
       setGrahaData(g); setPanchangData(p); setMediniData(m); setEclipseData(e); setSamvatsaraData(sv);
-    } catch (e) { console.error('API fetch error:', e); setError('Unable to connect to the Jyotish engine.'); }
+    } catch (e) { console.error('API fetch error:', e); setError(t('app.error')); }
     setLoading(false);
   }, []);
 
@@ -58,21 +60,22 @@ export default function App() {
 
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '24px 20px 60px', position: 'relative', zIndex: 2 }}>
         <header style={{ textAlign: 'center', marginBottom: 12, padding: '28px 0 20px', animation: 'fadeIn 1s ease' }}>
-          <div style={{ fontSize: 11, color: 'var(--ochre)', letterSpacing: 6, textTransform: 'uppercase', marginBottom: 14, fontFamily: 'var(--font-body)' }}>Based on Varahamihira's Brihat Samhita</div>
+          <div style={{ fontSize: 11, color: 'var(--ochre)', letterSpacing: 6, textTransform: 'uppercase', marginBottom: 14, fontFamily: 'var(--font-body)' }}>{t('app.tagline')}</div>
           <img src="/logo.svg" alt="Medini Jyotish" style={{ width: 80, height: 80, margin: "0 auto 12px", display: "block", opacity: 0.9 }} />
           <h1 style={{ fontFamily: 'var(--font-sanskrit)', fontSize: 'clamp(32px, 6vw, 48px)', fontWeight: 400, color: 'var(--ink)', margin: '0 0 4px', letterSpacing: 4, lineHeight: 1.2 }}>मेदिनी ज्योतिष</h1>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 16, color: 'var(--burnt-sienna)', letterSpacing: 6, textTransform: 'uppercase' }}>Medini Jyotish</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 16, color: 'var(--burnt-sienna)', letterSpacing: 6, textTransform: 'uppercase' }}>{t('app.nameEn')}</div>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', marginTop: 14, letterSpacing: 1 }}>
             {time.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}{' · '}{time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </div>
         </header>
 
+        <LanguageSelector />
         <Divider />
 
         {error && (
           <div style={{ background: 'rgba(139,37,0,0.06)', border: '1px solid rgba(139,37,0,0.2)', padding: '12px 16px', marginBottom: 20, fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--burnt-sienna)', textAlign: 'center' }}>
             {error}
-            <button onClick={fetchData} style={{ marginLeft: 12, background: 'var(--burnt-sienna)', color: 'var(--parchment-light)', border: 'none', padding: '4px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 12 }}>Retry</button>
+            <button onClick={fetchData} style={{ marginLeft: 12, background: 'var(--burnt-sienna)', color: 'var(--parchment-light)', border: 'none', padding: '4px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 12 }}>{t('app.retry')}</button>
           </div>
         )}
 
@@ -125,13 +128,13 @@ export default function App() {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 10, color: 'var(--ochre)', letterSpacing: 1, marginBottom: 2 }}>आज के दर्शक</div>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, color: 'var(--ink)', fontWeight: 600 }}>{hitCounts.today?.toLocaleString()}</div>
-                  <div style={{ fontFamily: 'var(--font-body)', fontSize: 9, color: 'var(--burnt-sienna)', letterSpacing: 1, textTransform: 'uppercase' }}>Today</div>
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: 9, color: 'var(--burnt-sienna)', letterSpacing: 1, textTransform: 'uppercase' }}>{t('app.today')}</div>
                 </div>
                 <div style={{ width: 1, background: 'rgba(92,64,51,0.15)' }} />
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'var(--font-devanagari)', fontSize: 10, color: 'var(--ochre)', letterSpacing: 1, marginBottom: 2 }}>कुल दर्शक</div>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, color: 'var(--ink)', fontWeight: 600 }}>{hitCounts.total?.toLocaleString()}</div>
-                  <div style={{ fontFamily: 'var(--font-body)', fontSize: 9, color: 'var(--burnt-sienna)', letterSpacing: 1, textTransform: 'uppercase' }}>Total</div>
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: 9, color: 'var(--burnt-sienna)', letterSpacing: 1, textTransform: 'uppercase' }}>{t('app.total')}</div>
                 </div>
               </div>
               {hitCounts.top_countries?.length > 0 && (
@@ -149,7 +152,7 @@ export default function App() {
             </div>
           )}
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--burnt-sienna)', lineHeight: 2, maxWidth: 500, margin: '0 auto' }}>
-            Based on classical texts of Vedic Jyotish for educational purposes.<br />Not financial, medical, or professional advice.<br />Planetary positions calculated using Swiss Ephemeris (accuracy &lt; 0.001 arc-seconds).
+            {t('app.disclaimer1')}<br />{t('app.disclaimer2')}<br />{t('app.disclaimer3')}
           </div>
         </footer>
       </div>
