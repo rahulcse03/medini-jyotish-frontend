@@ -44,3 +44,7 @@ export function getMonthlySummary(year, month) {
 export function getFinancialAnalysis() {
   return fetchAPI('/api/v1/medini/financial');
 }
+
+export function getTopicalAnalysis() {
+  return fetchAPI('/api/v1/medini/topical');
+}

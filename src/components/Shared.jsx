@@ -39,6 +39,7 @@ const NAV_TABS = [
   { key: 'nations',     sa: 'राष्ट्र कुण्डली', en: 'Nations' },
   { key: 'monthly',     sa: 'मासिक सारांश',  en: 'Monthly' },
   { key: 'financial',   sa: 'आर्थिक ज्योतिष', en: 'Financial' },
+  { key: 'topical',     sa: 'सामयिक विश्लेषण', en: 'Topical' },
 ];
 
 export function Nav({ active, setActive }) {
