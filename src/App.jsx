@@ -18,7 +18,18 @@ const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 export default function App() {
   const { t } = useLang();
-  const [active, setActive] = useState('graha');
+
+  // Derive initial tab from URL path (e.g. /rashifal → 'rashifal')
+  const pathTab = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/').pop();
+  const VALID_TABS = ['graha','panchang','medini','eclipse','samvatsara','kundli','nations','monthly','financial','topical','rashifal'];
+  const initialTab = VALID_TABS.includes(pathTab) ? pathTab : 'graha';
+
+  const [active, setActive] = useState(initialTab);
+  const handleSetActive = (tab) => {
+    setActive(tab);
+    const newPath = tab === 'graha' ? '/' : `/${tab}`;
+    window.history.replaceState(null, '', newPath);
+  };
   const [grahaData, setGrahaData] = useState(null);
   const [panchangData, setPanchangData] = useState(null);
   const [mediniData, setMediniData] = useState(null);
@@ -80,7 +91,7 @@ export default function App() {
           </div>
         )}
 
-        <Nav active={active} setActive={setActive} />
+        <Nav active={active} setActive={handleSetActive} />
 
         {active === 'kundli' ? (
           <KundliPage />
