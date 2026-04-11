@@ -42,7 +42,6 @@ const NAV_TABS = [
   { key: 'financial',   sa: 'आर्थिक ज्योतिष', tKey: 'nav.financial' },
   { key: 'topical',     sa: 'सामयिक विश्लेषण', tKey: 'nav.topical' },
   { key: 'rashifal',    sa: 'राशिफल',          tKey: 'nav.rashifal' },
-  { key: 'about',       sa: 'हमारे बारे में',    tKey: 'nav.about' },
 ];
 
 export function Nav({ active, setActive }) {

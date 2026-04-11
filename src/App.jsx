@@ -77,6 +77,18 @@ export default function App() {
           <img src="/logo.svg" alt="Medini Jyotish" style={{ width: 80, height: 80, margin: "0 auto 12px", display: "block", opacity: 0.9 }} />
           <h1 style={{ fontFamily: 'var(--font-sanskrit)', fontSize: 'clamp(32px, 6vw, 48px)', fontWeight: 400, color: 'var(--ink)', margin: '0 0 4px', letterSpacing: 4, lineHeight: 1.2 }}>मेदिनी ज्योतिष</h1>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 16, color: 'var(--burnt-sienna)', letterSpacing: 6, textTransform: 'uppercase' }}>{t('app.nameEn')}</div>
+          <div style={{ marginTop: 12 }}>
+            <button onClick={() => handleSetActive('about')} style={{
+              background: 'none', border: '1px solid rgba(184,134,11,0.3)', padding: '5px 16px',
+              fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)',
+              cursor: 'pointer', letterSpacing: 1, transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--ochre)'; e.currentTarget.style.color = 'var(--parchment-light)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--ochre)'; }}
+            >
+              📜 {t('nav.about') || 'Our Ancient Sources'}
+            </button>
+          </div>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', marginTop: 14, letterSpacing: 1 }}>
             {time.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}{' · '}{time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </div>
@@ -170,6 +182,18 @@ export default function App() {
           )}
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--burnt-sienna)', lineHeight: 2, maxWidth: 500, margin: '0 auto' }}>
             {t('app.disclaimer1')}<br />{t('app.disclaimer2')}<br />{t('app.disclaimer3')}
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <button onClick={() => handleSetActive('about')} style={{
+              background: 'none', border: '1px solid rgba(92,64,51,0.15)', padding: '6px 20px',
+              fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--burnt-sienna)',
+              cursor: 'pointer', letterSpacing: 0.5, transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--burnt-sienna)'; e.currentTarget.style.color = 'var(--parchment-light)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--burnt-sienna)'; }}
+            >
+              📜 {t('nav.about') || 'About & Sources'} · वराहमिहिर · पराशर
+            </button>
           </div>
         </footer>
       </div>
