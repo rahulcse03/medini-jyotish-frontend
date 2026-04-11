@@ -72,23 +72,25 @@ export default function App() {
       ))}
 
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '24px 20px 60px', position: 'relative', zIndex: 2 }}>
+        {/* Top-left About link */}
+        <div style={{ position: 'absolute', top: 28, left: 20, zIndex: 10 }}>
+          <button onClick={() => handleSetActive('about')} style={{
+            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+            fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--ochre)',
+            letterSpacing: 1, opacity: 0.7, transition: 'opacity 0.2s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; }}
+          >
+            📜 {t('nav.about') || 'Sources'}
+          </button>
+        </div>
+
         <header style={{ textAlign: 'center', marginBottom: 12, padding: '28px 0 20px', animation: 'fadeIn 1s ease' }}>
           <div style={{ fontSize: 11, color: 'var(--ochre)', letterSpacing: 6, textTransform: 'uppercase', marginBottom: 14, fontFamily: 'var(--font-body)' }}>{t('app.tagline')}</div>
           <img src="/logo.svg" alt="Medini Jyotish" style={{ width: 80, height: 80, margin: "0 auto 12px", display: "block", opacity: 0.9 }} />
           <h1 style={{ fontFamily: 'var(--font-sanskrit)', fontSize: 'clamp(32px, 6vw, 48px)', fontWeight: 400, color: 'var(--ink)', margin: '0 0 4px', letterSpacing: 4, lineHeight: 1.2 }}>मेदिनी ज्योतिष</h1>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 16, color: 'var(--burnt-sienna)', letterSpacing: 6, textTransform: 'uppercase' }}>{t('app.nameEn')}</div>
-          <div style={{ marginTop: 12 }}>
-            <button onClick={() => handleSetActive('about')} style={{
-              background: 'none', border: '1px solid rgba(184,134,11,0.3)', padding: '5px 16px',
-              fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)',
-              cursor: 'pointer', letterSpacing: 1, transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'var(--ochre)'; e.currentTarget.style.color = 'var(--parchment-light)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--ochre)'; }}
-            >
-              📜 {t('nav.about') || 'Our Ancient Sources'}
-            </button>
-          </div>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--ochre)', marginTop: 14, letterSpacing: 1 }}>
             {time.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}{' · '}{time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </div>
