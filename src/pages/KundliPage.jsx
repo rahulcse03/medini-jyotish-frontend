@@ -505,87 +505,97 @@ export default function KundliPage() {
 
       const el = kundliRef.current;
 
-      // Force all text to solid colors for html2canvas (CSS vars don't capture)
-      const allEls = el.querySelectorAll('*');
-      const origColors = [];
-      allEls.forEach((child, i) => {
-        const computed = getComputedStyle(child);
-        origColors[i] = { color: child.style.color, bg: child.style.backgroundColor, border: child.style.borderColor };
-        if (computed.color) child.style.color = computed.color;
-        if (computed.backgroundColor && computed.backgroundColor !== 'rgba(0, 0, 0, 0)') child.style.backgroundColor = computed.backgroundColor;
-      });
+      // Clone offscreen + inline all computed styles (CSS vars → real values)
+      const clone = el.cloneNode(true);
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.width = el.offsetWidth + 'px';
+      clone.style.background = '#F5E6C8';
+      document.body.appendChild(clone);
 
-      const canvas = await html2canvas(el, {
+      function inlineAll(src, tgt) {
+        const cs = getComputedStyle(src);
+        tgt.style.color = cs.color;
+        tgt.style.backgroundColor = cs.backgroundColor;
+        tgt.style.borderColor = cs.borderColor;
+        tgt.style.borderLeftColor = cs.borderLeftColor;
+        tgt.style.borderTopColor = cs.borderTopColor;
+        tgt.style.fontFamily = cs.fontFamily;
+        tgt.style.fontSize = cs.fontSize;
+        tgt.style.fontWeight = cs.fontWeight;
+        tgt.style.fontStyle = cs.fontStyle;
+        tgt.style.letterSpacing = cs.letterSpacing;
+        tgt.style.lineHeight = cs.lineHeight;
+        tgt.style.animation = 'none';
+        tgt.style.opacity = '1';
+        tgt.style.transform = 'none';
+        for (let i = 0; i < src.children.length; i++) {
+          if (tgt.children[i]) inlineAll(src.children[i], tgt.children[i]);
+        }
+      }
+      inlineAll(el, clone);
+
+      const canvas = await html2canvas(clone, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#F5E6C8',
         logging: false,
-        windowWidth: el.scrollWidth,
       });
+      document.body.removeChild(clone);
 
-      // Restore original styles
-      allEls.forEach((child, i) => {
-        if (origColors[i]) {
-          child.style.color = origColors[i].color;
-          child.style.backgroundColor = origColors[i].bg;
-          child.style.borderColor = origColors[i].border;
-        }
-      });
-
+      // PDF setup
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const margin = 10;
-      const contentWidth = pdfWidth - margin * 2;
-      const headerHeight = 18;
-      const footerHeight = 10;
+      const pdfW = 210, pdfH = 297, margin = 10;
+      const contentW = pdfW - margin * 2;
+      const headerH = 18;
+      const pxPerMm = (canvas.width / 2) / contentW;
+      const firstPageH = pdfH - headerH - margin - 12;
+      const laterPageH = pdfH - margin * 2;
+      const scaledH = (canvas.height / 2) / pxPerMm;
 
-      const imgWidth = contentWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-      // Calculate pages needed
-      const firstPageContent = pdfHeight - headerHeight - margin - footerHeight;
-      const laterPageContent = pdfHeight - margin - footerHeight;
       let totalPages = 1;
-      if (imgHeight > firstPageContent) {
-        totalPages = 1 + Math.ceil((imgHeight - firstPageContent) / laterPageContent);
+      if (scaledH > firstPageH) {
+        totalPages = 1 + Math.ceil((scaledH - firstPageH) / laterPageH);
       }
 
       for (let page = 0; page < totalPages; page++) {
         if (page > 0) pdf.addPage();
 
-        // Header on first page only
+        const sliceStartMm = page === 0 ? 0 : firstPageH + (page - 1) * laterPageH;
+        const sliceHeightMm = page === 0 ? firstPageH : laterPageH;
+        const srcY = Math.round(sliceStartMm * pxPerMm * 2);
+        const srcH = Math.min(Math.round(sliceHeightMm * pxPerMm * 2), canvas.height - srcY);
+        if (srcH <= 0) break;
+
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = srcH;
+        const ctx = pageCanvas.getContext('2d');
+        ctx.fillStyle = '#F5E6C8';
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+        const sliceImg = pageCanvas.toDataURL('image/jpeg', 0.92);
+        const sliceMmH = srcH / (pxPerMm * 2);
+
         if (page === 0) {
           pdf.setFillColor(92, 64, 51);
-          pdf.rect(0, 0, pdfWidth, headerHeight, 'F');
+          pdf.rect(0, 0, pdfW, headerH, 'F');
           pdf.setTextColor(245, 230, 200);
           pdf.setFontSize(14);
-          pdf.text('Medini Jyotish', pdfWidth / 2, 10, { align: 'center' });
+          pdf.text('Medini Jyotish', pdfW / 2, 10, { align: 'center' });
           pdf.setFontSize(8);
           pdf.setTextColor(200, 180, 140);
-          pdf.text('medinijyotish.com', pdfWidth / 2, 15, { align: 'center' });
+          pdf.text('medinijyotish.com', pdfW / 2, 15, { align: 'center' });
         }
 
-        // Calculate vertical offset for this page's slice
-        const yOffset = page === 0
-          ? headerHeight + 2
-          : -(firstPageContent + (page - 1) * laterPageContent) + 2;
+        pdf.addImage(sliceImg, 'JPEG', margin, page === 0 ? headerH + 2 : margin, contentW, sliceMmH);
 
-        // Clip to page area
-        const clipY = page === 0 ? headerHeight : 0;
-        const clipH = page === 0 ? firstPageContent : laterPageContent;
-        pdf.saveGraphicsState();
-        pdf.rect(margin, clipY, contentWidth, clipH + margin, null);
-        pdf.clip();
-        pdf.addImage(imgData, 'JPEG', margin, yOffset, imgWidth, imgHeight);
-        pdf.restoreGraphicsState();
-
-        // Footer on last page
         if (page === totalPages - 1) {
           pdf.setFontSize(7);
           pdf.setTextColor(150, 130, 100);
-          pdf.text('Generated by medinijyotish.com | Based on Brihat Samhita & Parashara Hora Shastra', pdfWidth / 2, 290, { align: 'center' });
+          pdf.text('Generated by medinijyotish.com | Based on Brihat Samhita & Parashara Hora Shastra', pdfW / 2, 290, { align: 'center' });
         }
       }
 
