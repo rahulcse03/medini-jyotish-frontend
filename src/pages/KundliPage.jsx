@@ -128,6 +128,7 @@ function RashiChart({ houses, lagna, title, titleSa }) {
 }
 
 function InterpretationSection({ interpretation }) {
+  const { t } = useLang();
   if (!interpretation) return null;
   const interp = interpretation;
 
@@ -235,6 +236,7 @@ function InterpretationSection({ interpretation }) {
 }
 
 function PlanetReadings({ readings }) {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   if (!readings?.length) return null;
 
