@@ -14,6 +14,7 @@ import FinancialPage from './pages/FinancialPage';
 import TopicalPage from './pages/TopicalPage';
 import RashifalPage from './pages/RashifalPage';
 import AboutPage from './pages/AboutPage';
+import AdUnit from './components/AdUnit';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
@@ -112,6 +113,9 @@ export default function App() {
 
         <Nav active={active} setActive={handleSetActive} />
 
+        {/* Top ad unit — below navigation */}
+        <AdUnit slot="XXXXXXXXX1" format="horizontal" />
+
         {active === 'kundli' ? (
           <KundliPage />
         ) : active === 'nations' ? (
@@ -137,6 +141,9 @@ export default function App() {
             {active === 'samvatsara' && <SamvatsaraPage data={samvatsaraData} />}
           </>
         )}
+
+        {/* Bottom ad unit — above footer */}
+        <AdUnit slot="XXXXXXXXX2" format="auto" />
 
         <Divider />
 
